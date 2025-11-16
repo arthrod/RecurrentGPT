@@ -27,6 +27,15 @@ except ImportError:
     import torch
 
 from openai import AsyncOpenAI
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Blackbox AI Configuration
+BLACKBOX_API_KEY = os.getenv("BLACKBOX_API_KEY")
+BLACKBOX_BASE_URL = os.getenv("BLACKBOX_BASE_URL")
+BLACKBOX_MODEL = os.getenv("BLACKBOX_MODEL")
 
 
 class SemanticRetriever:
@@ -89,7 +98,10 @@ class ContextCompressor:
     """Compress context to maintain only key information."""
 
     def __init__(self, api_key: str):
-        self.client = AsyncOpenAI(api_key=api_key)
+        self.client = AsyncOpenAI(
+            api_key=BLACKBOX_API_KEY,
+            base_url=BLACKBOX_BASE_URL
+        )
 
     async def compress(
         self,
@@ -124,7 +136,7 @@ Provide a compressed summary in EXACTLY {max_words} words or less that captures:
 Compressed summary ({max_words} words max):"""
 
         response = await self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model=BLACKBOX_MODEL,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
             max_tokens=max_words * 2
@@ -138,11 +150,14 @@ class TaleStudioApproach:
     TaleStudio-style generation: Semantic retrieval + context compression.
     """
 
-    def __init__(self, api_key: str):
-        self.api_key = api_key
-        self.client = AsyncOpenAI(api_key=api_key)
+    def __init__(self, api_key: str = None):
+        self.api_key = BLACKBOX_API_KEY
+        self.client = AsyncOpenAI(
+            api_key=BLACKBOX_API_KEY,
+            base_url=BLACKBOX_BASE_URL
+        )
         self.retriever = SemanticRetriever()
-        self.compressor = ContextCompressor(api_key)
+        self.compressor = ContextCompressor(BLACKBOX_API_KEY)
 
     async def generate_credit_facility(
         self,
@@ -296,7 +311,7 @@ Generate the credit facility agreement now:"""
         for attempt in range(max_attempts):
             try:
                 response = await self.client.chat.completions.create(
-                    model="gpt-4",  # Use GPT-4 for quality
+                    model=BLACKBOX_MODEL,  # Use Blackbox AI Gemini model
                     messages=[
                         {"role": "system", "content": "You are an expert legal document drafter specializing in credit facilities."},
                         {"role": "user", "content": prompt}
@@ -359,10 +374,8 @@ async def run_single_test(
 
 async def main():
     """Main test function."""
-    # Get API key
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY environment variable not set")
+    # Using Blackbox AI (configured at top of file)
+    api_key = BLACKBOX_API_KEY
 
     # Import utilities
     from utils.dummy_data import generate_batch

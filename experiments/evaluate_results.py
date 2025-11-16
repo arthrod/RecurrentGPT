@@ -16,14 +16,26 @@ from typing import Dict, List, Any
 from pathlib import Path
 from openai import AsyncOpenAI
 import statistics
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Blackbox AI Configuration
+BLACKBOX_API_KEY = os.getenv("BLACKBOX_API_KEY")
+BLACKBOX_BASE_URL = os.getenv("BLACKBOX_BASE_URL")
+BLACKBOX_MODEL = os.getenv("BLACKBOX_MODEL")
 
 
 class LLMJudge:
     """LLM-based judge for evaluating credit facility agreements."""
 
-    def __init__(self, api_key: str, model: str = "gpt-4"):
-        self.client = AsyncOpenAI(api_key=api_key)
-        self.model = model
+    def __init__(self, api_key: str = None, model: str = None):
+        self.client = AsyncOpenAI(
+            api_key=BLACKBOX_API_KEY,
+            base_url=BLACKBOX_BASE_URL
+        )
+        self.model = BLACKBOX_MODEL
 
     async def evaluate(
         self,
@@ -326,9 +338,9 @@ Provide evaluation in JSON:
         return json.loads(response.choices[0].message.content)
 
 
-async def evaluate_results_file(results_file: Path, api_key: str) -> List[Dict]:
+async def evaluate_results_file(results_file: Path, api_key: str = None) -> List[Dict]:
     """Evaluate all results in a JSONL file."""
-    judge = LLMJudge(api_key)
+    judge = LLMJudge()
 
     evaluations = []
 
@@ -359,9 +371,7 @@ async def evaluate_results_file(results_file: Path, api_key: str) -> List[Dict]:
 
 async def main():
     """Main evaluation function."""
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY environment variable not set")
+    # Using Blackbox AI (configured at top of file)
 
     results_dir = Path("experiments/results")
 
@@ -377,7 +387,7 @@ async def main():
         print(f"Evaluating {approach_name} approach")
         print(f"{'='*60}")
 
-        evaluations = await evaluate_results_file(results_file, api_key)
+        evaluations = await evaluate_results_file(results_file, None)
 
         # Save evaluations
         eval_file = results_dir / f"{approach_name}_evaluations.jsonl"

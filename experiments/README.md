@@ -49,9 +49,14 @@ LLM judge evaluates on:
 # Install dependencies
 pip install -r requirements.txt
 
-# Set API key
-export OPENAI_API_KEY="your-api-key-here"
+# Configure API (already set in .env file)
+# The .env file contains Blackbox AI configuration
+# BLACKBOX_API_KEY=sk-q79-se6_7I98XHgodJkHgw
+# BLACKBOX_BASE_URL=https://api.blackbox.ai
+# BLACKBOX_MODEL=blackboxai/google/gemini-2.5-flash-lite-preview-06-17
 ```
+
+**Note**: The API configuration is pre-configured in the `.env` file using Blackbox AI's Gemini model.
 
 ## Usage
 
@@ -154,11 +159,13 @@ Hallucinations: Possible references to irrelevant content
 
 ## Cost Estimation
 
-- **Per test**: ~$0.10-0.20 (GPT-4 usage)
-- **100 tests per approach**: ~$10-20
-- **Total for full experiment**: ~$40-50
-- **Evaluation (LLM judge)**: ~$20-30
-- **Grand total**: ~$60-80
+Using Blackbox AI with Google Gemini 2.5 Flash Lite model:
+
+- **Per test**: ~$0.001-0.01 (significantly cheaper than GPT-4)
+- **100 tests per approach**: ~$0.10-2.00
+- **Total for full experiment**: ~$0.50-5.00
+- **Evaluation (LLM judge)**: ~$0.50-5.00
+- **Grand total**: ~$1-10 (much more affordable than GPT-4)
 
 ## Analysis
 

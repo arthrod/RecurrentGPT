@@ -17,6 +17,15 @@ import sys
 sys.path.append(str(Path(__file__).parent.parent))
 
 from openai import AsyncOpenAI
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Blackbox AI Configuration
+BLACKBOX_API_KEY = os.getenv("BLACKBOX_API_KEY")
+BLACKBOX_BASE_URL = os.getenv("BLACKBOX_BASE_URL")
+BLACKBOX_MODEL = os.getenv("BLACKBOX_MODEL")
 
 
 class ReportSystemApproach:
@@ -26,9 +35,12 @@ class ReportSystemApproach:
     Passes ALL available documents to the LLM, regardless of relevance.
     """
 
-    def __init__(self, api_key: str):
-        self.api_key = api_key
-        self.client = AsyncOpenAI(api_key=api_key)
+    def __init__(self, api_key: str = None):
+        self.api_key = BLACKBOX_API_KEY
+        self.client = AsyncOpenAI(
+            api_key=BLACKBOX_API_KEY,
+            base_url=BLACKBOX_BASE_URL
+        )
 
     async def generate_credit_facility(
         self,
@@ -153,7 +165,7 @@ Generate the credit facility agreement now:"""
         # Report System pattern: Try once with fallback, no extensive validation
         try:
             response = await self.client.chat.completions.create(
-                model="gpt-4",  # Same model as TaleStudio for fair comparison
+                model=BLACKBOX_MODEL,  # Use Blackbox AI Gemini model
                 messages=[
                     {"role": "system", "content": "You are an expert legal document drafter."},
                     {"role": "user", "content": prompt}
@@ -169,7 +181,7 @@ Generate the credit facility agreement now:"""
             # Report System pattern: Try fallback with different message format
             try:
                 response = await self.client.chat.completions.create(
-                    model="gpt-4",
+                    model=BLACKBOX_MODEL,
                     messages=[
                         {"role": "user", "content": f"You are an expert legal document drafter.\n\n{prompt}"}
                     ],
@@ -215,10 +227,8 @@ async def run_single_test(
 
 async def main():
     """Main test function."""
-    # Get API key
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY environment variable not set")
+    # Using Blackbox AI (configured at top of file)
+    api_key = BLACKBOX_API_KEY
 
     # Import utilities
     from utils.dummy_data import generate_batch

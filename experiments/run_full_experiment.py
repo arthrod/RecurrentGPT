@@ -25,13 +25,22 @@ from test_report_approach import ReportSystemApproach
 from evaluate_results import LLMJudge
 from utils.dummy_data import generate_batch
 from utils.edgar_fetcher import EdgarFetcher
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Blackbox AI Configuration
+BLACKBOX_API_KEY = os.getenv("BLACKBOX_API_KEY")
+BLACKBOX_BASE_URL = os.getenv("BLACKBOX_BASE_URL")
+BLACKBOX_MODEL = os.getenv("BLACKBOX_MODEL")
 
 
 class ExperimentRunner:
     """Orchestrates the full experiment."""
 
-    def __init__(self, api_key: str, num_tests: int = 100):
-        self.api_key = api_key
+    def __init__(self, api_key: str = None, num_tests: int = 100):
+        self.api_key = BLACKBOX_API_KEY
         self.num_tests = num_tests
         self.output_dir = Path("experiments/results")
         self.output_dir.mkdir(parents=True, exist_ok=True)
@@ -330,9 +339,7 @@ class ExperimentRunner:
 
 async def main():
     """Main entry point."""
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY environment variable not set")
+    # Using Blackbox AI (configured at top of file)
 
     # Parse arguments
     import argparse
@@ -343,7 +350,7 @@ async def main():
 
     num_tests = 5 if args.quick else args.num_tests
 
-    runner = ExperimentRunner(api_key=api_key, num_tests=num_tests)
+    runner = ExperimentRunner(num_tests=num_tests)
     await runner.run()
 
 
