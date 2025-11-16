@@ -49,9 +49,9 @@ LLM judge evaluates on:
 # Install dependencies
 pip install -r requirements.txt
 
-# Configure API (already set in .env file)
-# The .env file contains Blackbox AI configuration
-# BLACKBOX_API_KEY=sk-q79-se6_7I98XHgodJkHgw
+# Configure API in .env file
+# The .env file should contain:
+# BLACKBOX_API_KEY=your-api-key-here
 # BLACKBOX_BASE_URL=https://api.blackbox.ai
 # BLACKBOX_MODEL=blackboxai/google/gemini-2.5-flash-lite-preview-06-17
 ```
